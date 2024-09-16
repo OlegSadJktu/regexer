@@ -6,10 +6,10 @@ import (
 )
 
 type (
-	Calculatable interface{
+	Calculatable interface {
 		Calculate() *big.Int
 	}
-	Preparable interface{
+	Preparable interface {
 		Prepare()
 	}
 	Node struct {
@@ -25,9 +25,8 @@ var (
 
 	// _ Calculatable = (*CharsetNode)(nil)
 	_ Calculatable = (*QuantifierNode)(nil)
-	_ Preparable = (*QuantifierNode)(nil)
+	_ Preparable   = (*QuantifierNode)(nil)
 )
-
 
 type (
 	CompositeNode  struct{ Node } // combined type: [1-9]{1,3}
@@ -35,14 +34,14 @@ type (
 	GroupNode      struct{ Node } // (asd|dsa)
 	QuantifierNode struct {
 		Node
-		parent *Node
-		index int
+		parent   *Node
+		index    int
 		from, to int
 	} // {1,3}
 	CharsetNode struct{ Node } // [1-9]
 )
 
-func NewNode(regex string) Calculatable {
+func NewNode(regex string) (Calculatable, TreeError) {
 	node := &CompositeNode{
 		Node: Node{
 			str:      regex,
@@ -54,20 +53,30 @@ func NewNode(regex string) Calculatable {
 	for i := 0; i < len(runes); i++ {
 		ch := runes[i]
 
+		var err error
 		switch ch {
 		case '(':
 			groupIndex := strings.Index(regex[i:], ")") + 1
-			newNode = NewGroupNode(regex[i : groupIndex+i])
+			newNode, err = NewGroupNode(regex[i : groupIndex+i])
+			if err != nil {
+				return nil, err
+			}
 			i = i + groupIndex - 1
 		case '{':
 			quantifierIndex := strings.Index(regex[i:], "}") + 1
-			newNode = NewQuantifierNode(regex[i:quantifierIndex+i], &node.Node, len(node.children) -1)
+			newNode, err = NewQuantifierNode(regex[i:quantifierIndex+i], &node.Node, len(node.children)-1)
+			if err != nil {
+				return nil, err
+			}
 			i = i + quantifierIndex - 1
 		default:
-			newNode = NewCharNode(string(ch))
+			newNode, err = NewCharNode(string(ch))
+			if err != nil {
+				return nil, err
+			}
 		}
 		node.children = append(node.children, newNode)
 	}
 
-	return node
+	return node, nil
 }

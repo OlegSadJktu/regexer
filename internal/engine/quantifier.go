@@ -17,15 +17,12 @@ func (obj *quantifierWrapper) Calculate() *big.Int {
 	return obj.result
 }
 
-func check(err error) {
-	if err != nil {
-		panic(err)
+func NewQuantifierNode(regex string, parent *Node, index int) (*QuantifierNode, TreeError) {
+	if len(regex) == 0 {
+		return nil, ErrInvalidQuantifier
 	}
-}
-
-func NewQuantifierNode(regex string, parent *Node, index int) *QuantifierNode {
 	if regex[0] != '{' || regex[len(regex)-1] != '}' {
-		panic("not a quantifier")
+		return nil, ErrInvalidQuantifier
 	}
 	node := &QuantifierNode{
 		Node:   Node{str: regex},
@@ -37,19 +34,24 @@ func NewQuantifierNode(regex string, parent *Node, index int) *QuantifierNode {
 	if withComma {
 		numbers := strings.Split(withoutBrackets, ",")
 		if len(numbers) != 2 {
-			panic("invalid quantifier args")
+			return nil, ErrInvalidQuantifierRange
 		}
+
 		var err error
 		node.from, err = strconv.Atoi(numbers[0])
-		check(err)
+		if err != nil {
+			return nil, err
+		}
 		node.to, err = strconv.Atoi(numbers[1])
-		check(err)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		fromTo, _ := strconv.Atoi(withoutBrackets)
 		node.from = fromTo
 		node.to = fromTo
 	}
-	return node
+	return node, nil
 }
 
 func (q *QuantifierNode) Calculate() *big.Int {

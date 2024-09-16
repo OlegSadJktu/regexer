@@ -26,8 +26,17 @@ func main() {
 		regexp = regarg
 	}
 	if len(file) != 0 {
-    regexp = f.ReadFile(file)
+		var err error
+		regexp, err = f.ReadFile(file)
+		if err != nil {
+			fmt.Printf("invalid file: %v\n", err)
+			return
+		}
 	}
-  sum := engine.Count(regexp)
-  fmt.Println(sum.String())
+	sum, err := engine.Count(regexp)
+	if err != nil {
+		fmt.Printf("Something went wrong: %v\n", err)
+	} else {
+		fmt.Println(sum.String())
+	}
 }

@@ -5,17 +5,24 @@ import (
 	"strings"
 )
 
-func NewGroupNode(regex string) *GroupNode {
+func NewGroupNode(regex string) (*GroupNode, TreeError) {
+	if len(regex) == 0 {
+		return nil, ErrInvalidQuantifier
+	}
 	node := &GroupNode{Node{str: regex}}
 	if regex[0] != '(' || regex[len(regex)-1] != ')' {
-		panic("not a group")
+		return nil, ErrInvalidGroup
 	}
 	withoutBrackets := regex[1 : len(regex)-1]
 	nodes := strings.Split(withoutBrackets, "|")
 	for _, strNode := range nodes {
-		node.children = append(node.children, NewNode(strNode))
+		new, err := NewNode(strNode)
+		if err != nil {
+			return nil, err
+		}
+		node.children = append(node.children, new)
 	}
-	return node
+	return node, nil
 
 }
 
