@@ -69,6 +69,13 @@ func NewNode(regex string) (Calculatable, TreeError) {
 				return nil, err
 			}
 			i = i + quantifierIndex - 1
+		case '[':
+			charsetIndex := strings.Index(regex[i:], "]") + 1
+			newNode, err = NewCharsetNode(regex[i : charsetIndex+i])
+			if err != nil {
+				return nil, err
+			}
+			i = i + charsetIndex - 1
 		default:
 			newNode, err = NewCharNode(string(ch))
 			if err != nil {
