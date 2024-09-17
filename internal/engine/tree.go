@@ -76,6 +76,15 @@ func NewNode(regex string) (Calculatable, TreeError) {
 				return nil, err
 			}
 			i = i + charsetIndex - 1
+		case '?':
+			newNode, err = NewQuantifierNode("{0,1}", &node.Node, len(node.children)-1)
+			if err != nil {
+				return nil, err
+			}
+		case '*':
+			fallthrough
+		case '+':
+			return nil, ErrInfinity
 		default:
 			newNode, err = NewCharNode(string(ch))
 			if err != nil {
