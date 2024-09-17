@@ -85,6 +85,23 @@ func NewNode(regex string) (Calculatable, TreeError) {
 			fallthrough
 		case '+':
 			return nil, ErrInfinity
+		case '\\':
+			i++
+			ch = runes[i]
+			switch ch {
+			case 'd':
+				newNode = NewDigitNode()
+			case 'w':
+				newNode = NewWordNode()
+			case 's':
+				newNode = NewWhiteSpaceNode()
+			case 'D':
+				fallthrough
+			case 'W':
+				fallthrough
+			case 'S':
+				return nil, ErrInfinity
+			}
 		default:
 			newNode, err = NewCharNode(string(ch))
 			if err != nil {
