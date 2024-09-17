@@ -5,7 +5,7 @@ Simple Go project for counting possible RegEx variations
 ## Main regex literals
 
 - `(abc|sad)` - group. Allows any sequence from brackets divided by `|`. In this case satisfies only "abc" or "sad" strings
-- `[0123]` - charset. Allows any symbol from square brackets 1 time. In this case satisfies only "0", "1", "2" or "3". Can contains ranges. **Currently not implemented**
+- `[0123]` - charset. Allows any symbol from square brackets 1 time. In this case satisfies only "0", "1", "2" or "3". Can contains ranges.
 - `a{2,4}` - quantifier. Allows previous symbol (or other entity) from `x` to `y` times. In this case satisfies only "aa", "aaa" or "aaaa"
 
 ## Examples
